@@ -1,0 +1,61 @@
+
+body {
+    color: black;
+    font-family: 'Averia Gruesa Libre', cursive;
+    font-size: 18px;
+    padding: 10px 20% 10px 20%;
+    margin: auto;
+}
+
+h1 {
+    color: #C11B17;
+    text-align: center;
+    font-size:40px;
+    padding: 10px;
+}
+
+h2 {
+    cololr: black;
+    font-size: 17px;
+}
+
+div.bibsource pre {
+   font-size: 90%;
+   white-space: pre-wrap;
+}
+
+pre {
+    border: 1px solid #ddd;
+    background-color: #eef;
+    font-size: 12px;
+    font-familiy: courier;
+    padding: 0 .4em;
+}
+
+.footer {
+    font-size: 100%;
+    color: #666;
+    border-top: 4px solid #eee;
+    margin-top: 2em;
+    width: 100%;
+    overflow: hidden;
+}
+
+.footer .contact {
+    float: left;
+    margin-right: 3em;
+}
+
+.footer .contact a {
+    color: #8085C1;
+}
+
+.footer .rss {
+    margin-top: 1.1em;
+    margin-right: -.2em;
+    float: right;
+}
+
+.footer .rss img {
+    border: 0;
+}

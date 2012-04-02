@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="http://code.jquery.com/jquery-latest.js"></script>
+</head>
+<body>
+  <form action="/json" id="searchForm">
+   <input type="text" name="s" placeholder="Search..." />
+   <input type="submit" value="Search" />
+  </form>
+  <!-- the result of the search will be rendered inside this div -->
+  <div id="response">
+    <pre id="result" style="width=100%;"></pre>
+    <div id="message" style="background-color:yellow;"></div>
+  </div>
+
+<script>
+  /* attach a submit handler to the form */
+  $("#searchForm").submit(function(event) {
+  
+    /* stop form from submitting normally */
+    event.preventDefault(); 
+        
+    /* get some values from elements on the page: */
+    var $form = $(this);
+    url = $form.attr('action');
+  
+    /* Send the data using post and put the results in a div */
+    $.post( url, function(data) {
+      $( "#result" ).empty().append( data.bibtex );
+      $( "#message" ).empty().append( data.message );
+    });
+  });
+</script>
+
+</body>
+</html>
+  
