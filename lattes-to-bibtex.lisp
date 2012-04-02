@@ -31,8 +31,9 @@
   (let ((names nil))
     (with-zipfile (zip pathname)
       (do-zipfile-entries (filename entry zip)
-	(push (excl.osi:with-open-temp-file (ss tmp-template)
-		(zipfile-entry-contents entry ss)) names)))
+	(excl.osi:with-open-temp-file (ss tmp-template :filename entry-filename)
+		(zipfile-entry-contents entry ss)
+		(push entry-filename names))))
     names))
 
 (defun lattes-valid-p (lattes-file)
