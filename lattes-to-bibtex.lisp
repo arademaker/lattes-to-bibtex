@@ -214,7 +214,20 @@
 (defun json-test (req ent)
   (with-http-response (req ent)
     (with-http-body (req ent)
-      (json:encode-json '((bibtex . "teste bib") (message . "teste msg")) (request-reply-stream req)))))
+      (do ((header (get-multipart-header req) (get-multipart-header req)))
+	  (nil)
+	(multiple-value-bind (type item-name filename content-type)
+	    (parse-multipart-header header)
+	  (when (equal type :eof) 
+	    (return t)) ;; no more headers
+	  (case type
+	    ((:file)
+	     (multiple-value-bind (buf len)
+		 (fetch-multipart-sequence req :format :text)
+	       (json:encode-json `((bibtex . ,buf) (message . ,len)) (request-reply-stream req))))
+	    ((:nofile)
+	     (json:encode-json `((bibtex . ,"none") (message . ,"none")) (request-reply-stream req)))))))))
+
 
 (publish :path "/json"
 	 :content-type "application/json; charset=utf-8;"
@@ -222,7 +235,7 @@
 
 (publish-file :path "/json-form"
 	      :content-type "text/html; charset=utf-8;"
-	      :file "form-test.html")
+	      :file "form-test2.html")
 
 
 ;; (html-stream *standard-output* (html (:head (:title "Lattes2Bibtex Converter")
