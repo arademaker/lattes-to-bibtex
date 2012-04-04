@@ -1,8 +1,10 @@
 
 ;; TODO:
-;; - JS para testar arquivo nao incluido
+;;
 ;; - jquery para submissao
-;; - testar arquivo invalido
+;; - pacote Lisp
+;; - tratar zip invalido que nao pode ser corrigido / corrompido
+;; - JS para testar arquivo nao incluido
 ;; - tutorial sobre exportacao XML do sistema
 
 (require :aserve)
@@ -241,7 +243,7 @@
 
 (publish-file :path "/json-form"
 	      :content-type "text/html; charset=utf-8;"
-	      :file "form-test2.html")
+	      :file "form.html")
 
 
 ;; (html-stream *standard-output* (html (:head (:title "Lattes2Bibtex Converter")

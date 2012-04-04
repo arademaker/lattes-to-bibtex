@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+
+<html>
+<head>
+  <title>Conversor Lattes-BibTeX</title>
+  <meta NAME="author" CONTENT="Alexandre Rademaker" />
+  <meta NAME="keywords" CONTENT="lisp, lattes, bibtex"/>
+  <meta NAME="description" CONTENT="A Common Lisp Lattes to BibTeX converter"/>
+  <link HREF="/static/lattes-to-bibtex.css" REL="stylesheet"
+	TYPE="text/css" />
+  <link HREF="http://fonts.googleapis.com/css?family=Averia+Gruesa+Libre&amp;subset=latin,latin-ext"
+	REL="stylesheet" TYPE="text/css" />
+  <script src="http://code.jquery.com/jquery-latest.js"></script>
+  <script src="http://malsup.github.com/jquery.form.js"></script>
+</head>
+
+<body>
+  <h1>Conversor Lattes-BibTeX</h1>
+
+  <form METHOD="post" ENCTYPE="multipart/form-data" id="fileForm"
+	ACTION="/json">
+
+    <p>Submeta seu arquivo XML Lattes para conversão:</p>
+    <input NAME="fileup" ID="fileup" TYPE="file">
+    <input TYPE="submit" VALUE="Enviar">
+  </form>
+
+  <div id="response">
+    <div id="message" style="background-color:yellow;"></div>
+    <pre id="result" style="width=100%;"></pre>
+  </div>
+
+  <div CLASS="footer">
+    <div CLASS="contact">
+      <p><a HREF="http://arademaker.github.com">Alexandre Rademaker</a><br>
+	arademaker AT gmail DOT com</p>
+    </div>
+    <div CLASS="contact">
+      <p><a HREF="http://github.com/arademaker/SLattes/" TARGET="_blank">Semantic Lattes</a><br>
+	<a HREF="http://sourceforge.net/p/bibutils/home/Bibutils/"
+	   TARGET="_blank">bibutils</a><br>
+	<a HREF="http://common-lisp.net/project/cxml/"
+	   TARGET="_blank">CXML</a><br>
+	<a HREF="http://www.quicklisp.org/" TARGET="_blank">QuickLisp</a><br>
+	<a HREF="http://allegroserve.sourceforge.net/" TARGET="_blank">Allegro
+	  Server</a></p>
+    </div>
+    <div CLASS="rss"><a HREF="http://lispers.org/" TARGET="_blank">
+	<img SRC="/static/lisplogo.png" ALT="lisp logo"></a>
+    </div>
+  </div>
+
+<script>
+$(document).ready(function() { 
+    $("#fileForm").ajaxForm({ 
+        url: $("#fileForm").attr("action"),
+        dataType: "json",
+        success: function(data) {
+            $("#result").empty().append( data.bibtex );
+            $("#message").empty().append( data.message );
+        }});
+});
+</script>  
+
+</body>
+</html>
