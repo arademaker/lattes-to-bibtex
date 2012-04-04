@@ -1,7 +1,5 @@
 
 ;; TODO:
-;;
-;; - jquery para submissao
 ;; - pacote Lisp
 ;; - tratar zip invalido que nao pode ser corrigido / corrompido
 ;; - JS para testar arquivo nao incluido
@@ -205,9 +203,9 @@
 
 (push *response-method-not-allowed* net.aserve::*responses*)
 
-(publish :path "/"
-	 :content-type "text/html; charset=utf-8;"
-	 :function #'generate-form)
+;; (publish :path "/"
+;; 	 :content-type "text/html; charset=utf-8;"
+;; 	 :function #'generate-form)
 
 (publish-directory :prefix "/static/" 
 		   :destination (namestring #P"static/"))
@@ -217,9 +215,10 @@
 	 :function #'process-form)
 
 
+
 ;;; test with json
 
-(defun json-test (req ent)
+(defun process-json (req ent)
   (with-http-response (req ent)
     (with-http-body (req ent)
       (do ((header (get-multipart-header req) (get-multipart-header req)))
@@ -228,20 +227,32 @@
 	    (parse-multipart-header header)
 	  (when (equal type :eof) 
 	    (return t)) ;; no more headers
-	  (case type
-	    ((:file)
-	     (multiple-value-bind (buf len)
-		 (fetch-multipart-sequence req :format :text)
-	       (json:encode-json `((bibtex . ,buf) (message . ,len)) (request-reply-stream req))))
-	    ((:nofile)
-	     (json:encode-json `((bibtex . ,"none") (message . ,"none")) (request-reply-stream req)))))))))
+	  (when (member item-name *known-form-items* :test #'equal)
+	    ;; it's a form item we know about, handle it
+	    (case type
+	      ((:file)
+	       (multiple-value-bind (buf len)
+		   (fetch-multipart-sequence req :format :binary)
+		 (multiple-value-bind (bibtex-file error-file) 
+		     (buffer-to-bibtex buf filename)
+		   (if bibtex-file
+		       (json:encode-json `((stdout . ,(read-file bibtex-file)) (stderr . ,(read-file error-file))
+					   (message . ,"Obrigado por usar este serviço."))
+					 (request-reply-stream req))
+		       (json:encode-json `((stdout . ,"none") (stderr . ,"none")
+					   (message . ,"Este arquivo não é um XML/Lattes válido."))
+					 (request-reply-stream req))))))
+	      ((:nofile)
+	       (json:encode-json `((stdout . ,"none") (stderr . ,"none") 
+				   (message . ,"Você não anexou nenhum arquivo")) 
+				 (request-reply-stream req))))))))))
 
 
 (publish :path "/json"
 	 :content-type "application/json; charset=utf-8;"
-	 :function #'json-test)
+	 :function #'process-json)
 
-(publish-file :path "/json-form"
+(publish-file :path "/"
 	      :content-type "text/html; charset=utf-8;"
 	      :file "form.html")
 

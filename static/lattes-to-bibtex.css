@@ -19,7 +19,7 @@ h2 {
     font-size: 17px;
 }
 
-div.bibsource pre {
+div#response pre {
    font-size: 90%;
    white-space: pre-wrap;
 }

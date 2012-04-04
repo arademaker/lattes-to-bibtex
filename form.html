@@ -27,7 +27,8 @@
 
   <div id="response">
     <div id="message" style="background-color:yellow;"></div>
-    <pre id="result" style="width=100%;"></pre>
+    <pre id="stdout" style="width=100%;"></pre>
+    <pre id="stderr" style="width=100%;"></pre>
   </div>
 
   <div CLASS="footer">
@@ -56,7 +57,8 @@ $(document).ready(function() {
         url: $("#fileForm").attr("action"),
         dataType: "json",
         success: function(data) {
-            $("#result").empty().append( data.bibtex );
+            $("#stdout").empty().append( data.stdout );
+            $("#stderr").empty().append( data.stderr );
             $("#message").empty().append( data.message );
         }});
 });
