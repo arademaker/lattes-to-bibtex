@@ -12,6 +12,10 @@ http://github.com/arademaker/SLattes/
 - Alexandre Rademaker
 - Rafael Haeusler
 
+## References
+
+- http://jquery.malsup.com/form/
+
 ## License
 
 <p></p>

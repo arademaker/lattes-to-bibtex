@@ -1,6 +1,5 @@
 
 ;; TODO:
-;; - validacao de arquivos zip
 ;; - JS para testar arquivo nao incluido
 ;; - jquery para submissao
 ;; - testar arquivo invalido
@@ -19,6 +18,9 @@
 
 (defparameter *LATTES-MODS-XSLT* #P"/Users/arademaker/work/SLattes/lattes2mods.xsl")
 (defparameter *DTD-LATTES* #P"/Users/arademaker/work/SLattes/LMPLCurriculo.DTD")
+
+
+;; utilities functions
 
 (defun try-to-fix-zip (buf)
   (let ((init-zip (search #(80 75 3 4) buf))
@@ -64,8 +66,23 @@
       (excl.osi:with-open-temp-file (errfile "/tmp/error-XXXXXX" :filename errfilename)
 	(excl.osi:command-output (format nil "/opt/local/bin/xml2bib -b -w ~a" mods-file) 
 				 :output-file outfile :error-output-file errfile)
-	(append `(,outfilename ,errfilename) filenames)))
+	(push errfilename filenames))
+      (push outfilename filenames))
     (values-list filenames)))
+
+
+(defun read-file (path) 
+  "Read file and returns a string with its contents" 
+  (with-open-file (s path)
+    (let* ((len (file-length s)) 
+	   (data (make-string len)))
+      (read-sequence data s) 
+      (values data))))
+
+(defun save-to-temp (data template)
+  (excl.osi:with-open-temp-file (ss template)
+    ;; (format ss data)
+    (write-sequence data ss)))
 
 
 (defun lattes-to-bibtex (lattes-file)
@@ -74,27 +91,31 @@
 	  (mods-to-bibtex (lattes-to-mods lattes-file))
 	(values bibtex-file error-file))
       (values nil nil)))
+
+
+(defun buffer-to-bibtex (buf filename)
+  (let* ((filepath (pathname filename))
+	 (filepath-type (pathname-type filepath :case :common)))
+    (if (string-equal filepath-type  "ZIP")
+	(let* ((zipfile (save-to-temp (try-to-fix-zip buf) "/tmp/zip-XXXXXX"))
+	       (lattes-files (extract-lattes-from-zip zipfile "/tmp/lattes-XXXXXX")))
+	  (lattes-to-bibtex (car lattes-files)))
+	(let ((temp-lattes-file (save-to-temp buf "/tmp/lattes-XXXXXX")))
+	  (lattes-to-bibtex temp-lattes-file)))))
       
 
-;; (defun mods-to-bibtex (mods-file)
-;;   " return a tuple of filenames: the first is the bibtex the second is the error "
-;;   (let ((outfile (excl.osi:mkstemp "/tmp/bib-XXXXXX"))
-;; 	(errfile (excl.osi:mkstemp "/tmp/err-XXXXXX")))
-;;     (progn 
-;;       (excl.osi:command-output (format nil "xml2bib -b -w ~a" mods-file) :output-file outfile :error-output-file errfile)
-;;       (close outfile)
-;;       (close errfile)
-;;       (list outfile errfile))))
+;; website
 
 (start :port 8000 :external-format (crlf-base-ef :utf-8))
 
-(defparameter *known-form-items* '("fileup" "format"))
+(defparameter *known-form-items* '("fileup"))
 
 (defmacro my-header ()
   `(:head (:title "Conversor Lattes-BibTeX")
 	  ((:meta :name "author" :content "Alexandre Rademaker"))
 	  ((:link :href "/static/lattes-to-bibtex.css" :rel "stylesheet" :type "text/css"))
-	  ((:link :href "http://fonts.googleapis.com/css?family=Averia+Gruesa+Libre&subset=latin,latin-ext" :rel "stylesheet" :type  "text/css"))
+	  ((:link :href "http://fonts.googleapis.com/css?family=Averia+Gruesa+Libre&subset=latin,latin-ext" 
+		  :rel "stylesheet" :type  "text/css"))
 	  (:body (:h1 "Conversor Lattes-BibTeX"))))
 
 (defmacro my-footer ()
@@ -129,7 +150,6 @@
 	      ((:form :method "post" :enctype "multipart/form-data" :action "/upload")
 	       (:p "Submeta seu arquivo XML Lattes para conversão: ")
 	       ((:input :name "fileup" :id "fileup" :type "file"))
-	       ((:input :name "format" :value "json" :type "hidden"))
 	       ((:input :type "submit" :value "Enviar")))
 	      (my-footer))))))
 
@@ -145,19 +165,6 @@
 	     ((or (null index) (= index end)) (values buffer (or index bytes-read)))))
       (let ((buffer (get-all-multipart-data req :type format)))
 	(values buffer (length buffer)))))
-
-(defun read-file (path) 
-  "Read file and returns a string with its contents" 
-  (with-open-file (s path)
-    (let* ((len (file-length s)) 
-	   (data (make-string len)))
-      (read-sequence data s) 
-      (values data))))
-
-(defun save-file (data)
-  (excl.osi:with-open-temp-file (ss "/tmp/lattes-XXXXXX")
-    ;; (format ss data)
-    (write-sequence data ss)))
 
 (defun process-form (req ent)
   (with-http-response (req ent)
@@ -176,17 +183,16 @@
 		       ((:file)
 			(multiple-value-bind (buf len)
 			    (fetch-multipart-sequence req :format :binary)
-			  (let ((temp-lattes-file (save-file buf)))
-			    (multiple-value-bind (bibtex-file error-file) 
-				(lattes-to-bibtex temp-lattes-file)
-			      (if bibtex-file
-				  (html (:p "Obrigado por usar este serviço. Aqui está seu BibTex:")
-					(voltar)
-					((:div :class "bibsource")
-					 (:pre 
-					  (:princ-safe (read-file bibtex-file)))))
-				  (html (:p "Este arquivo não é um XML/Lattes válido.")
-					(voltar)))))))
+			  (multiple-value-bind (bibtex-file error-file) 
+			      (buffer-to-bibtex buf filename)
+			    (if bibtex-file
+				(html (:p "Obrigado por usar este serviço. Aqui está seu BibTex:")
+				      (voltar)
+				      ((:div :class "bibsource")
+				       (:pre 
+					(:princ-safe (read-file bibtex-file)))))
+				(html (:p "Este arquivo não é um XML/Lattes válido.")
+				      (voltar))))))
 		       ((:nofile)
 			(html (:p "Você não anexou um arquivo.")
 			      (voltar)))))))
