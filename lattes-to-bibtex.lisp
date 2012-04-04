@@ -39,6 +39,7 @@
     names))
 
 (defun lattes-valid-p (lattes-file)
+  " Test if a LATTES file is valid according the DTD "
   (let ((filename lattes-file))
     (if (stringp filename)
 	(setf filename (pathname filename)))
@@ -50,7 +51,7 @@
 
 
 (defun lattes-to-mods (lattes-file)
-  " convert lattes to mods "
+  " Convert a lattes XML file to a mods XML file using the XSLT "
   (let ((filename lattes-file))
     (if (stringp lattes-file)
 	(setf filename (pathname lattes-file)))
@@ -81,7 +82,6 @@
 
 (defun save-to-temp (data template)
   (excl.osi:with-open-temp-file (ss template)
-    ;; (format ss data)
     (write-sequence data ss)))
 
 
@@ -118,40 +118,39 @@
 		  :rel "stylesheet" :type  "text/css"))
 	  (:body (:h1 "Conversor Lattes-BibTeX"))))
 
-(defmacro my-footer ()
-  `((:div :class "footer")
-    ((:div :class "contact")
-     (:p ((:a :href "http://arademaker.github.com") "Alexandre Rademaker")
-	 (:br)
-	 "arademaker AT gmail DOT com"))
-    ((:div :class "contact")
-     (:p ((:a :href "http://github.com/arademaker/SLattes/" :target "_blank") "Semantic Lattes")
-	 (:br)
-	 ((:a :href "http://sourceforge.net/p/bibutils/home/Bibutils/" :target "_blank") "bibutils")
-	 (:br)
-	 ((:a :href "http://common-lisp.net/project/cxml/" :target "_blank") "CXML")
-	 (:br)
-	 ((:a :href "http://www.quicklisp.org/" :target "_blank") "QuickLisp")
-	 (:br)
-	 ((:a :href "http://allegroserve.sourceforge.net/" :target "_blank") "Allegro Serve")))
-    ((:div :class "rss")
-     ((:a :href "http://lispers.org/" :target "_blank")
-      ((:img :src "/static/lisplogo.png" alt="lisp logo"))))))
+;; (defmacro my-footer ()
+;;   `((:div :class "footer")
+;;     ((:div :class "contact")
+;;      (:p ((:a :href "http://arademaker.github.com") "Alexandre Rademaker")
+;; 	 (:br)
+;; 	 "arademaker AT gmail DOT com"))
+;;     ((:div :class "contact")
+;;      (:p ((:a :href "http://github.com/arademaker/SLattes/" :target "_blank") "Semantic Lattes")
+;; 	 (:br)
+;; 	 ((:a :href "http://sourceforge.net/p/bibutils/home/Bibutils/" :target "_blank") "bibutils")
+;; 	 (:br)
+;; 	 ((:a :href "http://common-lisp.net/project/cxml/" :target "_blank") "CXML")
+;; 	 (:br)
+;; 	 ((:a :href "http://www.quicklisp.org/" :target "_blank") "QuickLisp")
+;; 	 (:br)
+;; 	 ((:a :href "http://allegroserve.sourceforge.net/" :target "_blank") "Allegro Serve")))
+;;     ((:div :class "rss")
+;;      ((:a :href "http://lispers.org/" :target "_blank")
+;;       ((:img :src "/static/lisplogo.png" alt="lisp logo"))))))
 
-(defmacro voltar ()
-  `(:p "Clique " ((:a :href "/") "aqui") " para voltar"))
+;; (defmacro voltar ()
+;;   `(:p "Clique " ((:a :href "/") "aqui") " para voltar"))
 
-
-(defun generate-form (req ent)
-  (with-http-response (req ent)
-    (with-http-body (req ent)
-      (html 
-       (:html (my-header)
-	      ((:form :method "post" :enctype "multipart/form-data" :action "/upload")
-	       (:p "Submeta seu arquivo XML Lattes para conversão: ")
-	       ((:input :name "fileup" :id "fileup" :type "file"))
-	       ((:input :type "submit" :value "Enviar")))
-	      (my-footer))))))
+;; (defun generate-form (req ent)
+;;   (with-http-response (req ent)
+;;     (with-http-body (req ent)
+;;       (html 
+;;        (:html (my-header)
+;; 	      ((:form :method "post" :enctype "multipart/form-data" :action "/upload")
+;; 	       (:p "Submeta seu arquivo XML Lattes para conversão: ")
+;; 	       ((:input :name "fileup" :id "fileup" :type "file"))
+;; 	       ((:input :type "submit" :value "Enviar")))
+;; 	      (my-footer))))))
 
 (defun fetch-multipart-sequence (req &key (length nil) (format :binary))
   (if length
@@ -166,37 +165,37 @@
       (let ((buffer (get-all-multipart-data req :type format)))
 	(values buffer (length buffer)))))
 
-(defun process-form (req ent)
-  (with-http-response (req ent)
-    (with-http-body (req ent)
-      (html 
-       (:html (my-header)
-	      (do ((header (get-multipart-header req) (get-multipart-header req)))
-		  (nil)
-		 (multiple-value-bind (type item-name filename content-type)
-		     (parse-multipart-header header)
-		   (when (equal type :eof) 
-		     (return t)) ;; no more headers
-		   (when (member item-name *known-form-items* :test #'equal)
-		     ;; it's a form item we know about, handle it
-		     (case type
-		       ((:file)
-			(multiple-value-bind (buf len)
-			    (fetch-multipart-sequence req :format :binary)
-			  (multiple-value-bind (bibtex-file error-file) 
-			      (buffer-to-bibtex buf filename)
-			    (if bibtex-file
-				(html (:p "Obrigado por usar este serviço. Aqui está seu BibTex:")
-				      (voltar)
-				      ((:div :class "bibsource")
-				       (:pre 
-					(:princ-safe (read-file bibtex-file)))))
-				(html (:p "Este arquivo não é um XML/Lattes válido.")
-				      (voltar))))))
-		       ((:nofile)
-			(html (:p "Você não anexou um arquivo.")
-			      (voltar)))))))
-	      (my-footer))))))
+;; (defun process-form (req ent)
+;;   (with-http-response (req ent)
+;;     (with-http-body (req ent)
+;;       (html 
+;;        (:html (my-header)
+;; 	      (do ((header (get-multipart-header req) (get-multipart-header req)))
+;; 		  (nil)
+;; 		 (multiple-value-bind (type item-name filename content-type)
+;; 		     (parse-multipart-header header)
+;; 		   (when (equal type :eof) 
+;; 		     (return t)) ;; no more headers
+;; 		   (when (member item-name *known-form-items* :test #'equal)
+;; 		     ;; it's a form item we know about, handle it
+;; 		     (case type
+;; 		       ((:file)
+;; 			(multiple-value-bind (buf len)
+;; 			    (fetch-multipart-sequence req :format :binary)
+;; 			  (multiple-value-bind (bibtex-file error-file) 
+;; 			      (buffer-to-bibtex buf filename)
+;; 			    (if bibtex-file
+;; 				(html (:p "Obrigado por usar este serviço. Aqui está seu BibTex:")
+;; 				      (voltar)
+;; 				      ((:div :class "bibsource")
+;; 				       (:pre 
+;; 					(:princ-safe (read-file bibtex-file)))))
+;; 				(html (:p "Este arquivo não é um XML/Lattes válido.")
+;; 				      (voltar))))))
+;; 		       ((:nofile)
+;; 			(html (:p "Você não anexou um arquivo.")
+;; 			      (voltar)))))))
+;; 	      (my-footer))))))
 
 
 (defparameter *response-method-not-allowed* (net.aserve::make-resp 405 "Method Not Allowed"))
@@ -210,10 +209,9 @@
 (publish-directory :prefix "/static/" 
 		   :destination (namestring #P"static/"))
 
-(publish :path "/upload"
-	 :content-type "text/html; charset=utf-8;"
-	 :function #'process-form)
-
+;; (publish :path "/upload"
+;; 	 :content-type "text/html; charset=utf-8;"
+;; 	 :function #'process-form)
 
 
 ;;; test with json
@@ -226,7 +224,8 @@
 	(multiple-value-bind (type item-name filename content-type)
 	    (parse-multipart-header header)
 	  (when (equal type :eof) 
-	    (return t)) ;; no more headers
+	    ;; no more headers
+	    (return t)) 
 	  (when (member item-name *known-form-items* :test #'equal)
 	    ;; it's a form item we know about, handle it
 	    (case type
@@ -236,14 +235,17 @@
 		 (multiple-value-bind (bibtex-file error-file) 
 		     (buffer-to-bibtex buf filename)
 		   (if bibtex-file
-		       (json:encode-json `((stdout . ,(read-file bibtex-file)) (stderr . ,(read-file error-file))
+		       (json:encode-json `((stdout . ,(read-file bibtex-file)) 
+					   (stderr . ,(read-file error-file))
 					   (message . ,"Obrigado por usar este serviço."))
 					 (request-reply-stream req))
-		       (json:encode-json `((stdout . ,"none") (stderr . ,"none")
+		       (json:encode-json `((stdout . ,"none") 
+					   (stderr . ,"none")
 					   (message . ,"Este arquivo não é um XML/Lattes válido."))
 					 (request-reply-stream req))))))
 	      ((:nofile)
-	       (json:encode-json `((stdout . ,"none") (stderr . ,"none") 
+	       (json:encode-json `((stdout . ,"none") 
+				   (stderr . ,"none") 
 				   (message . ,"Você não anexou nenhum arquivo")) 
 				 (request-reply-stream req))))))))))
 
