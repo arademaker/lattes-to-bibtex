@@ -2,8 +2,8 @@
 # Lattes to BibTeX
 
 This is a web interface programmed in Common Lisp (allegro server) to
-transform LATTES XML (compressed or not in ZIP) to BibTeX. The details
-about the transformation can be obtained in 
+transform LATTES XML (compressed or not in ZIP format) to BibTeX. The details
+about the transformation can be obtained in
 
 http://github.com/arademaker/SLattes/
   
@@ -12,9 +12,16 @@ http://github.com/arademaker/SLattes/
 - Alexandre Rademaker
 - Rafael Haeusler
 
-## References
+## Tools
 
-- http://jquery.malsup.com/form/
+- [Allegro Common Lisp](http://www.franz.com)
+- [Quicklisp](http://quicklisp.org)
+- [Semantic Lattes](http://github.com/arademaker/SLattes/)
+- [bibutils](http://sourceforge.net/p/bibutils/home/Bibutils/)
+- [CXML](http://common-lisp.net/project/cxml/)
+- [Allegro Server](http://allegroserve.sourceforge.net/)
+- [jQuery](http://jquery.com/)
+- [jQuery Form Plugin](http://jquery.malsup.com/form/)
 
 ## License
 
