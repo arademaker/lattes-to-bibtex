@@ -23,12 +23,13 @@
     <p>Submeta seu arquivo XML Lattes para conversão:</p>
     <input NAME="fileup" ID="fileup" TYPE="file">
     <input TYPE="submit" VALUE="Enviar">
+    <input TYPE="button" VALUE="Limpar" onClick="clean();">
   </form>
 
   <div id="response">
     <div id="message" style="background-color:yellow;"></div>
-    <pre id="stdout" style="width=100%;"></pre>
     <pre id="stderr" style="width=100%;"></pre>
+    <pre id="stdout" style="width=100%;"></pre>
   </div>
 
   <div class="footer">
@@ -62,6 +63,12 @@ $(document).ready(function() {
             $("#message").empty().append( data.message );
         }});
 });
+
+function clean() {
+ $("#stdout").empty();
+ $("#stderr").empty();
+ $("#message").empty();
+}
 </script>  
 
 </body>

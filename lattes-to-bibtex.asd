@@ -4,6 +4,7 @@
   :serial t
   :depends-on (#:cxml
                #:cl-json
+	       #:cxml-rng
                #:zip
                #:xuriella)
   :components ((:file "package")

@@ -4,8 +4,12 @@
 
 (defparameter *LATTES-MODS-XSLT* #P"~/work/SLattes/lattes2mods.xsl")
 (defparameter *DTD-LATTES* #P"~/work/SLattes/LMPLCurriculo.DTD")
+
+;; Zach suggested 
+;; (asdf:system-source-directory :lattes-to-bibtex)
 (defparameter *WORKING-PATH* (pathname-directory (asdf:system-definition-pathname 
 						  (asdf:find-system :lattes-to-bibtex))))
+
 
 ;; utilities functions
 
