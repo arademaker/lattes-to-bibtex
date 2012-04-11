@@ -22,11 +22,13 @@
 
 (defun extract-lattes-from-zip (pathname tmp-template)
   (let ((names nil))
-    (with-zipfile (zip pathname)
-      (do-zipfile-entries (filename entry zip)
-	(excl.osi:with-open-temp-file (ss tmp-template :filename entry-filename)
-		(zipfile-entry-contents entry ss)
-		(push entry-filename names))))
+    (handler-case 
+	(with-zipfile (zip pathname)
+	  (do-zipfile-entries (filename entry zip)
+	    (excl.osi:with-open-temp-file (ss tmp-template :filename entry-filename)
+	      (zipfile-entry-contents entry ss)
+	      (push entry-filename names))))
+      (simple-error () nil))
     names))
 
 (defun lattes-valid-p (lattes-file)
