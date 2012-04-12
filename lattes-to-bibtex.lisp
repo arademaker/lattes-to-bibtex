@@ -1,9 +1,11 @@
+
 ;;;; lattes-to-bibtex.lisp
 
 (in-package #:lattes-to-bibtex)
 
 (defparameter *LATTES-MODS-XSLT* #P"~/work/SLattes/lattes2mods.xsl")
 (defparameter *DTD-LATTES* #P"~/work/SLattes/LMPLCurriculo.DTD")
+(defparameter *DATA-DIR* #P"/tmp/")
 
 ;; Zach suggested 
 ;; (asdf:system-source-directory :lattes-to-bibtex)
@@ -13,22 +15,26 @@
 
 ;; utilities functions
 
-(defun try-to-fix-zip (buf)
+(defun template (prefix)
+  (namestring (make-pathname :directory (pathname-directory *DATA-DIR*)
+			     :name (format nil "~a-XXXXXX" prefix))))
+
+(defun is-fixable-zip-p (buf)
   (let ((init-zip (search #(80 75 3 4) buf))
 	(init-http (search #(72 84 84 80) buf)))
     (if (and (equal init-http 0) init-zip)
-	(subseq buf init-zip)
-	buf)))
-
-(defun extract-lattes-from-zip (pathname tmp-template)
+	;; remove the header of the HTTP protocol
+	(values t (subseq buf init-zip))
+	;; I can't do anything
+	nil)))
+ 
+(defun extract-files-from-zip (pathname tmp-template)
   (let ((names nil))
-    (handler-case 
-	(with-zipfile (zip pathname)
-	  (do-zipfile-entries (filename entry zip)
-	    (excl.osi:with-open-temp-file (ss tmp-template :filename entry-filename)
-	      (zipfile-entry-contents entry ss)
-	      (push entry-filename names))))
-      (simple-error () nil))
+    (with-zipfile (zip pathname)
+      (do-zipfile-entries (filename entry zip)
+	(excl.osi:with-open-temp-file (ss tmp-template :filename entry-filename)
+	  (zipfile-entry-contents entry ss)
+	  (push entry-filename names))))
     names))
 
 (defun lattes-valid-p (lattes-file)
@@ -48,7 +54,7 @@
   (let ((filename lattes-file))
     (if (stringp lattes-file)
 	(setf filename (pathname lattes-file)))
-    (excl.osi:with-open-temp-file (ss "/tmp/mods-XXXXXX")
+    (excl.osi:with-open-temp-file (ss (template "mods"))
       (xuriella:apply-stylesheet *LATTES-MODS-XSLT* filename :output ss))))
 
 
@@ -56,8 +62,8 @@
   " return a tuple of filenames: the first is the bibtex the second
     is the error "
   (let ((filenames nil))
-    (excl.osi:with-open-temp-file (outfile "/tmp/bibtex-XXXXXX" :filename outfilename)
-      (excl.osi:with-open-temp-file (errfile "/tmp/error-XXXXXX" :filename errfilename)
+    (excl.osi:with-open-temp-file (outfile (template "bibtex") :filename outfilename)
+      (excl.osi:with-open-temp-file (errfile (template "error") :filename errfilename)
 	(excl.osi:command-output (format nil "/opt/local/bin/xml2bib -b -w ~a" mods-file) 
 				 :output-file outfile :error-output-file errfile)
 	(push errfilename filenames))
@@ -78,24 +84,62 @@
     (write-sequence data ss)))
 
 
+(define-condition invalid-file (error)
+  ((text :initarg :text :reader text)))
+
+(define-condition invalid-lattes-file (invalid-file)
+  ((text :initarg :text :reader text)))
+
+(define-condition invalid-zip-file (invalid-file)
+  ((text :initarg :text :reader text)))
+
+
 (defun lattes-to-bibtex (lattes-file)
   (if (lattes-valid-p lattes-file)
       (multiple-value-bind (bibtex-file error-file) 
 	  (mods-to-bibtex (lattes-to-mods lattes-file))
 	(values bibtex-file error-file))
-      (values nil nil)))
+      (error 'invalid-lattes-file :text "Este arquivo não é um XML LATTES válido.")))
+
+
+(defun extract-lattes-from-zip-buf (buf)
+  (let* ((zip-file (save-to-temp buf (template "zip")))
+	 (lattes-files (extract-files-from-zip zip-file (template "lattes"))))
+    (assert (> (length lattes-files) 0))
+    (car lattes-files)))
 
 
 (defun buffer-to-bibtex (buf filename)
   (let* ((filepath (pathname filename))
 	 (filepath-type (pathname-type filepath :case :common)))
     (if (string-equal filepath-type  "ZIP")
-	(let* ((zipfile (save-to-temp (try-to-fix-zip buf) "/tmp/zip-XXXXXX"))
-	       (lattes-files (extract-lattes-from-zip zipfile "/tmp/lattes-XXXXXX")))
-	  (lattes-to-bibtex (car lattes-files)))
-	(let ((temp-lattes-file (save-to-temp buf "/tmp/lattes-XXXXXX")))
-	  (lattes-to-bibtex temp-lattes-file)))))
-      
+	(multiple-value-bind (test new-buf)
+	    (is-fixable-zip-p buf)
+	  (handler-case 
+	      (if test
+		  (lattes-to-bibtex (extract-lattes-from-zip-buf new-buf))
+		  (lattes-to-bibtex (extract-lattes-from-zip-buf buf)))
+	    (simple-error () 
+	      (error 'invalid-zip-file :text "Este arquivo não é um ZIP válido."))))
+	(lattes-to-bibtex (save-to-temp buf (template "lattes"))))))
+
+
+;; (defun buffer-to-bibtex (buf filename)
+;;   (let* ((filepath (pathname filename))
+;; 	 (filepath-type (pathname-type filepath :case :common)))
+;;     (if (string-equal filepath-type  "ZIP")
+;; 	(handler-case 
+;; 	    (lattes-to-bibtex (extract-lattes-from-zip-buf buf))
+;; 	  (simple-error () 
+;; 	    (multiple-value-bind (test new-buf)
+;; 		(is-fixable-zip-p buf)
+;; 	      (if test
+;; 		  (handler-case 
+;; 		      (lattes-to-bibtex (extract-lattes-from-zip-buf new-buf))
+;; 		    (simple-error () 
+;; 		      (error 'invalid-zip-file :text "Este arquivo não é um ZIP válido."))))
+;; 	      (error 'invalid-zip-file :text "Este arquivo não é um ZIP válido.")))))))
+
 
 ;; WEBSITE
 
@@ -135,20 +179,21 @@
 	      ((:file)
 	       (multiple-value-bind (buf len)
 		   (fetch-multipart-sequence req :format :binary)
-		 (multiple-value-bind (bibtex-file error-file) 
-		     (buffer-to-bibtex buf filename)
-		   (if bibtex-file
+		 (handler-case 
+		     (multiple-value-bind (bibtex-file error-file) 
+			 (buffer-to-bibtex buf filename)
 		       (json:encode-json `((stdout . ,(read-file bibtex-file)) 
 					   (stderr . ,(read-file error-file))
 					   (message . ,"Obrigado por usar este serviço."))
-					 (request-reply-stream req))
-		       (json:encode-json `((stdout . ,"none") 
-					   (stderr . ,"none")
-					   (message . ,"Este arquivo não é um XML/Lattes válido."))
-					 (request-reply-stream req))))))
+					 (request-reply-stream req)))
+		   (invalid-file (err)
+		     (json:encode-json `((stdout . ,nil) 
+					 (stderr . ,nil)
+					 (message . , (slot-value err 'text)))
+				       (request-reply-stream req))))))
 	      ((:nofile)
-	       (json:encode-json `((stdout . ,"none") 
-				   (stderr . ,"none") 
+	       (json:encode-json `((stdout . ,nil) 
+				   (stderr . ,nil) 
 				   (message . ,"Você não anexou nenhum arquivo")) 
 				 (request-reply-stream req))))))))))
 
@@ -165,7 +210,6 @@
 	      :content-type "text/html; charset=utf-8;"
 	      :file (namestring (make-pathname :name "form" :type "html" 
 					       :directory *WORKING-PATH*)))
-
 
 (start :port 8000 :external-format (crlf-base-ef :utf-8))
 

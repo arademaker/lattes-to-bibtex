@@ -44,6 +44,7 @@ pre {
 .footer .contact {
     float: left;
     margin-right: 3em;
+    font-size: 85%;
 }
 
 .footer .contact a {
