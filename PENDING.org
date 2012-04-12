@@ -1,3 +1,16 @@
 
-* Download do arquivo bibtex gerado
-* melhor controle sobre a geração das chaves das entradas bibtex
+* TODO Download do arquivo bibtex gerado
+
+Sugestão do CBRAGA. Incluir link para download do BibTeX gerado
+facilitando o usuário que tiver várias publicações.
+
+* TODO melhor controle sobre a geração das chaves das entradas bibtex
+
+Sugestão do CBRAGA. Usando o bibtool podemos fazer algo interessante
+realmente. O bibtool também tem uma interface C, que poderia ser
+chamada pelo lisp evitando chamar um processo... 
+
+#+BEGIN_SRC bash
+bibtool -@ -f "%n(author):%4d(year)" teste.bib
+#+END_SRC
+
