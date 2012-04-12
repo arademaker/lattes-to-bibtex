@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+
+<html>
+<head>
+  <title>Conversor Lattes-BibTeX</title>
+  <meta NAME="author" CONTENT="Alexandre Rademaker" />
+  <meta NAME="keywords" CONTENT="lisp, lattes, bibtex"/>
+  <meta NAME="description" CONTENT="A Common Lisp Lattes to BibTeX converter"/>
+  <link HREF="/static/lattes-to-bibtex.css" REL="stylesheet"
+	TYPE="text/css" />
+  <link HREF="http://fonts.googleapis.com/css?family=Averia+Gruesa+Libre&amp;subset=latin,latin-ext"
+	REL="stylesheet" TYPE="text/css" />
+  <script src="http://code.jquery.com/jquery-latest.js"></script>
+  <script src="http://malsup.github.com/jquery.form.js"></script>
+</head>
+
+<body class="sobre">
+
+<h1>Conversor Lattes-BibTeX</h1>
+
+<p>Esta ferramenta foi criada como produto secundário do
+projeto <a href="http://github.com/arademaker/SLattes/">Semantic
+Lattes</a>. Após desenvolvermos a transformação de Lattes para RDF,
+tivemos a idéia de que seria útil para boa parte da comunidade
+científica brasileira, ter um extrator das referências bibliográficas
+de um Lattes.</p>
+
+<h2>Como usar?</h2>
+
+<p>
+Para usar esta ferramenta, um pesquisador deverá seguir os seguintes
+passos:</p>
+
+<ol>
+  <li>Acessar o site do Lattes escolhendo o link para
+    <a
+  href="https://wwws.cnpq.br/sigef_imp/owa/pservicos.entrada?opcao=lattes">atualizar
+  o currículo</a> e logar-se no sistema Lattes usando seus dados.</li>
+
+  <li>Na aba de ferramentas inferior, na página inicial do Lattes,
+   escolher a opção de exportação do Lattes. Na janela de exportação,
+    escolher a opção <i>XML</i> e clicar em <i>Confirmar</i>.</li>
+
+  <li>Seu navegador iniciará o download de um arquivo com nome
+  <i>CV_XXXXXXXXXXXXXXXX.zip</i> onde <i>XXX...</i> é o
+  código do seu Currículo Lattes.</li>
+
+  <li> Você pode submeter para o o Lattes-BibTeX este arquivo ZIP, não
+  precisa descompactar. O Lattes-BibTeX irá então gerar um BibTeX com
+  todas as produções bibliográficas encontradas no seu Currículo
+  Lattes.</li> </ol>
+
+<h2>Que dados são considerados no Lattes?</h2>
+
+<ul>
+<li>Teses de doutorado e dissertações de mestrado informadas pelo autor
+  do Lattes em sua formação acadêmica.
+
+</li>
+<li>Todas as produções bibliográficas: trabalhos em eventos, artigos
+  publicados, capítulos em livros, livros e artigos aceitos para
+  publicação.
+</li>
+</ul>
+
+<h2>Meus dados são salvos pelo Lattes-BibTeX?</h2>
+
+<p>Não. Seus dados não são salvos neste sistema. Os arquivos
+  submetidos são transformados em BibTeX e descartados. Os usuários
+  que mesmo assim preferirem remover dados pessoais dos seus Lattes
+  antes de submeter o arquivo para este sistema podem fazê-lo, desde
+  que o arquivo XML editado, antes de submetido, permaneça um XML Lattes
+  válido. No XML do Lattes, a única tag que pode conter alguma
+  informação sensível é a tag ENDERECO, caso o pesquisador tenha
+  escolhido seu endereço residencial como endereço principal.</p>
+
+<div class="footer">
+  <div CLASS="contact">
+    <p>Responsável:<br/>
+      <a HREF="http://arademaker.github.com" target="_blank">Alexandre Rademaker</a><br/>
+      <a HREF="http://emap.fgv.br" target="_blank">EMAp/FGV</a></p>
+  </div>
+  <div class="contact">
+    <p>Ajuda:<br/>
+      <a href="/">Home</a><br/>
+      <a href="http://lattes.cnpq.br" target="_blank">O que é Lattes?</a><br/>
+      <a href="http://en.wikipedia.org/wiki/BibTeX" target="_blank">O que é BibTeX?</a><br/>
+    </p>
+  </div>
+  <div class="contact">
+    <p>Ferramentas: <br/>
+      <a HREF="http://github.com/arademaker/SLattes/" target="_blank">Semantic Lattes</a><br>
+      <a HREF="http://www.quicklisp.org/"
+	 TARGET="_blank">QuickLisp</a><br>
+      <a HREF="https://github.com/arademaker/lattes-to-bibtex"
+	 TARGET="_blank">Outras...</a></p>
+  </div>
+  <div CLASS="rss"><a HREF="http://lispers.org/" TARGET="_blank">
+      <img SRC="/static/lisplogo.png" ALT="lisp logo"></a>
+  </div>
+</div>
+
+</body>
+</html>

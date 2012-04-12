@@ -10,18 +10,19 @@ http://github.com/arademaker/SLattes/
 ## Team
 
 - Alexandre Rademaker
-- Rafael Haeusler
 
 ## Tools
 
-- [Allegro Common Lisp](http://www.franz.com)
-- [Quicklisp](http://quicklisp.org)
 - [Semantic Lattes](http://github.com/arademaker/SLattes/)
-- [bibutils](http://sourceforge.net/p/bibutils/home/Bibutils/)
-- [CXML](http://common-lisp.net/project/cxml/)
+- [Allegro Common Lisp](http://www.franz.com)
 - [Allegro Server](http://allegroserve.sourceforge.net/)
+- [bibutils](http://sourceforge.net/p/bibutils/home/Bibutils/)
+- [Quicklisp](http://quicklisp.org)
+ - [CXML](http://common-lisp.net/project/cxml/)
+ - [ZIP](http://common-lisp.net/project/zip/)
+ - [CL-JSON](http://common-lisp.net/project/cl-json/)
 - [jQuery](http://jquery.com/)
-- [jQuery Form Plugin](http://jquery.malsup.com/form/)
+ - [jQuery Form Plugin](http://jquery.malsup.com/form/)
 
 ## License
 

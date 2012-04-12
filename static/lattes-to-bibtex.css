@@ -7,6 +7,15 @@ body {
     margin: auto;
 }
 
+body.sobre {
+    color: black;
+    font-family: 'Averia Gruesa Libre', cursive; 
+    font-size: 16px;
+    padding: 10px 20% 10px 20%;
+    margin: auto;
+}
+
+
 h1 {
     color: #C11B17;
     text-align: center;

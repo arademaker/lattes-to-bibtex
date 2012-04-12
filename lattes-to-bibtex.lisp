@@ -211,5 +211,10 @@
 	      :file (namestring (make-pathname :name "form" :type "html" 
 					       :directory *WORKING-PATH*)))
 
+(publish-file :path "/sobre.html"
+	      :content-type "text/html; charset=utf-8;"
+	      :file (namestring (make-pathname :name "sobre" :type "html" 
+					       :directory *WORKING-PATH*)))
+
 (start :port 8000 :external-format (crlf-base-ef :utf-8))
 
