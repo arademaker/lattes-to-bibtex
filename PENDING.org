@@ -1,0 +1,3 @@
+
+* Download do arquivo bibtex gerado
+* melhor controle sobre a geração das chaves das entradas bibtex
