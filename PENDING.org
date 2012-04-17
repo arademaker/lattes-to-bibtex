@@ -6,11 +6,32 @@ facilitando o usuário que tiver várias publicações.
 
 * TODO melhor controle sobre a geração das chaves das entradas bibtex
 
-Sugestão do CBRAGA. Usando o bibtool podemos fazer algo interessante
-realmente. O bibtool também tem uma interface C, que poderia ser
-chamada pelo lisp evitando chamar um processo... 
+Sugestão do CBRAGA e BRUNO. Usando o bibtool podemos fazer algo
+interessante realmente. O bibtool também tem uma interface C, que
+poderia ser chamada pelo lisp evitando chamar um processo...
 
 #+BEGIN_SRC bash
 bibtool -@ -f "%n(author):%4d(year)" teste.bib
 #+END_SRC
+
+* TODO Melhorar geração do BibTeX
+
+Sugestões do Bruno Lopes:
+
+- quando houver "í" em vez se usar "{\'i}" usar "{\'\i }" (o comando
+  \i tira o pingo do i, pra melhorar a tipografia);
+- quando houver letra em maiúscula no meio da palavra por entre chaves
+  (e.g."Anais do XIX Simp{\'o}sio" ficaria "Anais do {XIX}
+  Simp{\'o}sio"), para garantir que permaneça nessa formatação
+  independente do estilo bibliográfico;
+- acrescentar campo para DOI (alguns estilos usam);
+- não por sobrenome na frente do nome, o ideal seria que isso ficasse
+  a cargo do estilo (alguns estilos podem se confundir com isso).
+
+* TODO resolver warnings da validação dos XML 
+
+Possivelmente com conversão do DTD para RNG usando
+http://www.thaiopensource.com/relaxng/trang-manual.html e depois
+tentando entender a implementação
+http://code.google.com/p/cl-en/source/browse/trunk/basics.lisp
 
