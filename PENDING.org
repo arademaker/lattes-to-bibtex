@@ -28,13 +28,19 @@ Sugestões do Bruno Lopes:
 - não por sobrenome na frente do nome, o ideal seria que isso ficasse
   a cargo do estilo (alguns estilos podem se confundir com isso).
 
-* TODO resolver warnings da validação dos XML 
+* TODO salvar no servidor e oferecer url permanente para download 
+
+recebida pelo site. 
+
+* DONE resolver warnings da validação dos XML 
 
 Possivelmente com conversão do DTD para RNG usando
 http://www.thaiopensource.com/relaxng/trang-manual.html e depois
 tentando entender a implementação
 http://code.google.com/p/cl-en/source/browse/trunk/basics.lisp
 
-* TODO salvar no servidor e oferecer url permanente para download 
+Dica do David Lichteblau para usar o trecho abaixo como forma de
+suprir os warnings:
 
-recebida pelo site. 
+(handler-bind ((warning #'muffle-warning))
+  ...)
