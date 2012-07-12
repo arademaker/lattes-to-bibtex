@@ -35,3 +35,6 @@ http://www.thaiopensource.com/relaxng/trang-manual.html e depois
 tentando entender a implementação
 http://code.google.com/p/cl-en/source/browse/trunk/basics.lisp
 
+* TODO salvar no servidor e oferecer url permanente para download 
+
+recebida pelo site. 

@@ -42,11 +42,12 @@
   (let ((filename lattes-file))
     (if (stringp filename)
 	(setf filename (pathname filename)))
-    (handler-case 
-	(let ((d (cxml:parse-file filename (cxml-dom:make-dom-builder)))
-	      (x (cxml:parse-dtd-file *DTD-LATTES*)))
-	  (not (dom:map-document (cxml:make-validator x #"CURRICULO-VITAE") d)))
-      (cxml:well-formedness-violation () nil))))
+    (handler-bind ((warning #'muffle-warning))
+	(handler-case 
+	    (let ((d (cxml:parse-file filename (cxml-dom:make-dom-builder)))
+		  (x (cxml:parse-dtd-file *DTD-LATTES*)))
+	      (not (dom:map-document (cxml:make-validator x #"CURRICULO-VITAE") d)))
+	  (cxml:well-formedness-violation () nil)))))
 
 
 (defun lattes-to-mods (lattes-file)
